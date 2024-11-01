@@ -28,13 +28,15 @@ find_package(Taskflow CONFIG REQUIRED)
 find_package(meshoptimizer CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp "include/Logger.hpp" "src/Logger.cpp")
+add_executable(${PROJECT_NAME} main.cpp "include/Logger.hpp" )
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 endif()
+
+target_include_directories(cprg-game PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
 target_link_libraries(cprg-game PRIVATE Microsoft::DirectXShaderCompiler)
 target_link_libraries(cprg-game PRIVATE Microsoft::DirectX-Headers)
