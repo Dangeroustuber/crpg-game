@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "crpg-game",
+  "version": "1.0.0",
+  "dependencies": [
+    "spdlog",
+
+    "assimp",
+    "meshoptimizer",
+
+    "taskflow",
+
+    "directx-dxc",
+    "directx12-agility",
+    "directx-headers",
+    "directxtk",
+    "directxmath",
+    "directxtk12"
+  ]
+}
