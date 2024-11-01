@@ -1,5 +1,6 @@
-#include <iostream>
+#include "Engine/Engine.hpp"
 
 int main(int argc, char* argv[]) {
-	std::cout << "hello game!" << "\n";
+	Engine engine;
+	return engine.run();
 }

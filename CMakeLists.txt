@@ -30,7 +30,7 @@ find_package(Taskflow CONFIG REQUIRED)
 find_package(meshoptimizer CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp "Source/Engine/Engine.hpp" "Source/Engine/Engine.cpp" "Source/Engine/Subsystems/Logger.hpp")
+add_executable(${PROJECT_NAME} main.cpp "Source/Engine/Engine.hpp" "Source/Engine/Engine.cpp" "Source/Engine/Subsystems/Logger.hpp" "Source/Engine/Subsystems/Window.hpp" "Source/Engine/Subsystems/Window.cpp")
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /utf-8 /MP)

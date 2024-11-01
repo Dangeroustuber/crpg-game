@@ -1,6 +1,20 @@
-#include "Engine/Engine.hpp"
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
-void Engine::initialize() {}
+#include "Engine/Engine.hpp"
+#include "Subsystems/Logger.hpp"
+
+Engine::Engine() {}
+Engine::~Engine() {}
+
+void Engine::initialize() {
+	// initialize subsystems
+	Logger::initialize("crpg-game");
+	LOG_INFO("Initialized logging subsystem");
+
+	window.initialize({ .windowName = L"tempname", .width = 800, .height = 600 }, this);
+	LOG_INFO("Initialized window subsystem");
+}
 
 int32_t Engine::run() {
 	initialize();
@@ -13,3 +27,8 @@ int32_t Engine::run() {
 }
 
 void Engine::shutdown() {}
+
+LRESULT Engine::handleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+
+	return 0;
+}
