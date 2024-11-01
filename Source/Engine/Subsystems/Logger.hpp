@@ -28,4 +28,4 @@ struct Logger {
 #define LOG_INFO(...)  Logger::logger->info(__VA_ARGS__)
 #define LOG_WARN(...)  Logger::logger->warn(__VA_ARGS__)
 #define LOG_ERROR(...) Logger::logger->error(__VA_ARGS__)
-#define LOG_FATAL(...) Logger::logger->fatal(__VA_ARGS__)
+#define LOG_FATAL(...) Logger::logger->critical(__VA_ARGS__)
