@@ -31,7 +31,7 @@ find_package(Taskflow CONFIG REQUIRED)
 find_package(meshoptimizer CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp "Source/Engine/Engine.hpp" "Source/Engine/Engine.cpp" "Source/Engine/Subsystems/Logger.hpp" "Source/Engine/Subsystems/Window.hpp" "Source/Engine/Subsystems/Window.cpp")
+add_executable(${PROJECT_NAME} main.cpp "Source/Engine/Engine.hpp" "Source/Engine/Engine.cpp" "Source/Engine/Subsystems/Logger.hpp" "Source/Engine/Subsystems/Window.hpp" "Source/Engine/Subsystems/Window.cpp" "Source/Utils/IniFileParser.hpp" "Source/Utils/IniFileParser.cpp" "Source/Utils/Utils.cpp")
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /utf-8 /MP)
@@ -60,3 +60,10 @@ if(TARGET Microsoft::DirectX12-Agility)
         COMMAND_EXPAND_LISTS
     )
 endif()
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/config.ini
+        ${CMAKE_SOURCE_DIR}/bin/$<CONFIG>/config.ini
+)
