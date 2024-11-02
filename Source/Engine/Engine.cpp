@@ -8,10 +8,14 @@ Engine::Engine() {}
 Engine::~Engine() {}
 
 void Engine::initialize() {
-	// initialize subsystems
+	// initialize logging subsystem first
 	Logger::initialize("crpg-game");
 	LOG_INFO("Initialized logging subsystem");
 
+	// read in the engine/game configuration
+	configFileParser.parse("config.ini");
+
+	// initialize all the other engine subsystems
 	window.initialize({ .windowName = L"tempname", .width = 800, .height = 600 }, this);
 	LOG_INFO("Initialized window subsystem");
 }
