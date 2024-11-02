@@ -33,6 +33,7 @@ void Window::initialize(const WindowDescription& inDesc, void* engine) {
 		.lpfnWndProc = wndProc,
 		.hInstance = GetModuleHandle(nullptr),
 		.hCursor = LoadCursor(nullptr, IDC_ARROW),
+		.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1),
 		.lpszClassName = L"windowClass"
 	};
 
@@ -53,7 +54,7 @@ void Window::initialize(const WindowDescription& inDesc, void* engine) {
 	int32_t middleY = (monitorHeight - desc.height) / 2;
 
 	windowHandle = CreateWindowEx(
-		WS_EX_NOREDIRECTIONBITMAP,
+		0, // consider WS_EX_NOREDIRECTIONBITMAP?
 		windowClass.lpszClassName,
 		desc.windowName,
 		WS_OVERLAPPEDWINDOW,
