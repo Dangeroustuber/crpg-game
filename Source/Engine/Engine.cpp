@@ -3,6 +3,7 @@
 
 #include "Engine/Engine.hpp"
 #include "Subsystems/Logger.hpp"
+#include "Game/IGame.hpp"
 
 Engine::Engine() {}
 Engine::~Engine() {}
@@ -20,11 +21,33 @@ void Engine::initialize() {
 	LOG_INFO("Initialized window subsystem");
 }
 
-int32_t Engine::run() {
+int32_t Engine::run(IGame* inGame) {
+	game = inGame;
+
 	initialize();
+	LOG_INFO("Finished initializing engine subsystems");
 
-	// game loop
+	if (!game->initialize()) { // The game should log it's problems if it fails to initialize.
+		LOG_FATAL("Errors occured when attempting to initialize the game");
+		return EXIT_FAILURE;
+	}
 
+	while (!shutdownEngine) {
+		MSG msg;
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+
+			if (msg.message == WM_QUIT) {
+				break;
+			}
+		}
+
+		game->update();
+		game->render();
+	}
+
+	game->shutdown();
 	shutdown();
 
 	return 0;
@@ -33,6 +56,20 @@ int32_t Engine::run() {
 void Engine::shutdown() {}
 
 LRESULT Engine::handleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
+		case WM_QUIT: [[fallthrough]];
+		case WM_CLOSE: [[fallthrough]];
+		case WM_DESTROY:
+		{
+			shutdownEngine = true;
+			PostQuitMessage(0);
+			break;
+		}
+		default:
+		{
+			return DefWindowProc(hwnd, msg, wParam, lParam);
+		}
+	}
 
-	return 0;
+	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
