@@ -31,7 +31,15 @@ find_package(Taskflow CONFIG REQUIRED)
 find_package(meshoptimizer CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME} main.cpp "Source/Engine/Engine.hpp" "Source/Engine/Engine.cpp" "Source/Engine/Subsystems/Logger.hpp" "Source/Engine/Subsystems/Window.hpp" "Source/Engine/Subsystems/Window.cpp" "Source/Utils/IniFileParser.hpp" "Source/Utils/IniFileParser.cpp" "Source/Utils/Utils.cpp")
+add_executable(${PROJECT_NAME} main.cpp 
+    "Source/Engine/Engine.cpp"
+    "Source/Engine/Subsystems/Logger.hpp"
+    "Source/Engine/Subsystems/Window.cpp" 
+    "Source/Engine/Subsystems/Graphics/DX12Device.cpp"
+    "Source/Utils/Utils.cpp" 
+    "Source/Utils/IniFileParser.cpp" 
+    "Source/Game/Game.cpp"
+)
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /utf-8 /MP)
@@ -51,6 +59,15 @@ target_link_libraries(cprg-game PRIVATE spdlog::spdlog)
 target_link_libraries(cprg-game PRIVATE Taskflow::Taskflow)
 target_link_libraries(cprg-game PRIVATE meshoptimizer::meshoptimizer)
 target_link_libraries(cprg-game PRIVATE assimp::assimp)
+
+if(WIN32)
+    target_link_libraries(cprg-game PRIVATE
+        d3d12.lib
+        dxgi.lib
+        # dxcompiler.lib
+        dxguid.lib
+    )
+endif()
 
 if(TARGET Microsoft::DirectX12-Agility)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
