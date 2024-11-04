@@ -1,6 +1,10 @@
 #include "Utils.hpp"
 #include "Engine/Subsystems/Logger.hpp"
 
+#include <comdef.h>
+#include <string>
+#include <codecvt>
+
 const char* readFileBasic(const std::filesystem::path& path) {
 	auto filePath = path.string();
 	FILE* inFile = fopen(filePath.data(), "rb");
@@ -57,4 +61,17 @@ const char* readFileBasic(const std::filesystem::path& path) {
 	buffer[size] = '\0';
 
 	return buffer;
+}
+
+void tryHResult(HRESULT hr) {
+	if (FAILED(hr)) {
+		_com_error err{ hr };
+		std::wstring wstr{ err.ErrorMessage() };
+
+		int32_t size = WideCharToMultiByte(CP_UTF8, 0, &wstr.front(), (int32_t)wstr.size(), NULL, 0, NULL, NULL);
+		std::string message(size, 0);
+		WideCharToMultiByte(CP_UTF8, 0, &wstr.front(), (int32_t)wstr.size(), &message.front(), size, NULL, NULL);
+
+		LOG_FATAL("HRESULT did not return a valid success code. Message: {}", message.c_str());
+	}
 }

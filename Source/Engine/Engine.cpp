@@ -5,6 +5,8 @@
 #include "Subsystems/Logger.hpp"
 #include "Game/IGame.hpp"
 
+#include <Engine/Subsystems/Graphics/DX12Device.hpp>
+
 Engine::Engine() {}
 Engine::~Engine() {}
 
@@ -53,7 +55,9 @@ int32_t Engine::run(IGame* inGame) {
 	return 0;
 }
 
-void Engine::shutdown() {}
+void Engine::shutdown() {
+
+}
 
 LRESULT Engine::handleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
