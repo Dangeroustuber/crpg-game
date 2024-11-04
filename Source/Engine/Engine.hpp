@@ -23,9 +23,4 @@ struct Engine {
 	// Engine specific data
 	bool shutdownEngine = false;
 	IGame* game;
-
-	Engine(const Engine&) = delete;
-	Engine& operator=(const Engine&) = delete;
-	Engine(Engine&&) = delete;
-	Engine& operator=(Engine&&) = delete;
 };

@@ -16,11 +16,6 @@ struct Logger {
 		spdlog::set_pattern("%^[%Y-%m-%d %H:%M:%S] [%l] %v%$");
 		spdlog::set_level(spdlog::level::trace);
 	}
-
-	Logger(const Logger&) = delete;
-	Logger& operator=(const Logger&) = delete;
-	Logger(Logger&&) = delete;
-	Logger& operator=(Logger&&) = delete;
 };
 
 #define LOG_TRACE(...) Logger::logger->trace(__VA_ARGS__)
