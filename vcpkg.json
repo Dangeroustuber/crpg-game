@@ -16,6 +16,7 @@
     "directxtk",
     "directxmath",
     "directxtk12",
+    "d3dx12",
     "d3d12-memory-allocator"
   ]
 }
