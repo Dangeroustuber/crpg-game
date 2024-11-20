@@ -1,7 +1,7 @@
 #include "Engine/Engine.hpp"
 #include "Game/Game.hpp"
 
-int main(int argc, char* argv[]) {
+int main() {
 	Game game;
 	Engine engine;
 	return engine.run(&game);
