@@ -1,13 +1,11 @@
-#include "Utils.hpp"
-#include "Engine/Subsystems/Logger.hpp"
+#include "pch.h"
 
 #include <comdef.h>
 #include <string>
-#include <codecvt>
 
 const char* readFileBasic(const std::filesystem::path& path) {
 	auto filePath = path.string();
-	FILE* inFile = fopen(filePath.data(), "rb");
+	FILE* inFile = std::fopen(filePath.data(), "rb");
 
 	if (!inFile) {
 		LOG_ERROR("Unable to open file for reading. Filepath given was {}", filePath);
@@ -15,14 +13,14 @@ const char* readFileBasic(const std::filesystem::path& path) {
 	}
 
 	// Get file size
-	int32_t fseekRet = fseek(inFile, 0, SEEK_END);
+	int32_t fseekRet = std::fseek(inFile, 0, SEEK_END);
 
 	if (fseekRet != 0) {
 		LOG_ERROR("Failed when seeking for the size of the file. Filepath given was {}", filePath);
 		return nullptr;
 	}
 
-	int32_t size = ftell(inFile);
+	int32_t size = std::ftell(inFile);
 
 	if (size == -1L) {
 		LOG_ERROR("Failed in ftell(). Filepath given was {}", filePath);
@@ -31,10 +29,10 @@ const char* readFileBasic(const std::filesystem::path& path) {
 
 	rewind(inFile);
 
-	char* buffer = (char*)malloc((size_t)size + 1);
+	char* buffer = (char*)std::malloc((size_t)size + 1);
 
 	if (!buffer) {
-		int32_t fcloseRet = fclose(inFile);
+		int32_t fcloseRet = std::fclose(inFile);
 
 		if (fcloseRet == EOF) {
 			LOG_ERROR("Unable to close file. File was: {}", filePath);
@@ -43,18 +41,18 @@ const char* readFileBasic(const std::filesystem::path& path) {
 		return nullptr;
 	}
 
-	size_t readSize = fread(buffer, 1, size, inFile);
-	int32_t fcloseRet = fclose(inFile);
+	size_t readSize = std::fread(buffer, 1, size, inFile);
+	int32_t fcloseRet = std::fclose(inFile);
 
 	if (fcloseRet == EOF) {
 		LOG_ERROR("Unable to close file. File was: {}", filePath);
-		free(buffer);
+		std::free(buffer);
 		return nullptr;
 	}
 
 	if (readSize != size) {
 		LOG_ERROR("The amount of data read was not equal to the expected size. File was: {}", filePath);
-		free(buffer);
+		std::free(buffer);
 		return nullptr;
 	}
 
@@ -73,5 +71,10 @@ void tryHResult(HRESULT hr) {
 		WideCharToMultiByte(CP_UTF8, 0, &wstr.front(), (int32_t)wstr.size(), &message.front(), size, NULL, NULL);
 
 		LOG_FATAL("HRESULT did not return a valid success code. Message: {}", message.c_str());
+		std::exit(EXIT_FAILURE);
 	}
+}
+
+uint32_t alignTo256Bytes(uint32_t baseSize) {
+	return (baseSize + 255) & ~255;
 }

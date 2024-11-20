@@ -1,9 +1,5 @@
 #pragma once
-
-#include "Engine/Subsystems/Logger.hpp"
-
-#include <filesystem>
-#include <comdef.h>
+#include "pch.h"
 
 #define MAKE_NON_COPYABLE(name)			   \
 	name(const name&) = delete;			   \
@@ -14,3 +10,5 @@
 const char* readFileBasic(const std::filesystem::path& path);
 
 void tryHResult(HRESULT hr);
+
+uint32_t alignTo256Bytes(uint32_t baseSize);
