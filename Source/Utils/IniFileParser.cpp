@@ -1,6 +1,6 @@
+#include "pch.h"
+
 #include "IniFileParser.hpp"
-#include "Utils/Utils.hpp"
-#include "Engine/Subsystems/Logger.hpp"
 
 INIFileParser::INIFileParser() {}
 INIFileParser::~INIFileParser() {}
@@ -66,8 +66,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 	};
 
 	auto isAlpha = [](char c) {
-		return (c >= 'a' && c <= 'z') ||
-			(c >= 'A' && c <= 'Z') || c == '_';
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 	};
 
 	auto isAlphaNum = [&](char c) {
@@ -76,14 +75,14 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 
 
 
-	while (lexer.ch != '\0') {
-		while (lexer.ch == ' ' || lexer.ch == '\n' || lexer.ch == '\t' || lexer.ch == '\r') {
+	while (lexer.ch != '\0') { // while we have not reached the end
+		while (lexer.ch == ' ' || lexer.ch == '\n' || lexer.ch == '\t' || lexer.ch == '\r') { // we do not care about whitespace so we always skip it
 			if (!advance()) {
 				return {};
 			}
 		}
 
-		if (lexer.ch == ';') {
+		if (lexer.ch == ';') { // we skip line comments
 			while (lexer.ch != '\n' && lexer.ch != EOF) {
 				if (!advance()) {
 					return {};
@@ -136,7 +135,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 				break;
 			}
 			default:
-			{
+			{ // if it was not a single character
 				if (isAlpha(lexer.ch)) {
 					uint32_t startPos = lexer.pos;
 
@@ -243,7 +242,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 			}
 
 			if (parser.currentToken.kind == VALUE_LITERAL) {
-				section.name = parser.currentToken.value.c_str();
+				section.name = _strdup(parser.currentToken.value.c_str());
 
 				if (!parserAdvance()) {
 					return {};
@@ -261,7 +260,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 					}
 
 					if (parser.currentToken.kind == VALUE_LITERAL) {
-						auto& key = parser.currentToken.value;
+						std::string key = parser.currentToken.value; // important to take a copy here.
 						if (!parserAdvance()) {
 							return {};
 						}
@@ -277,7 +276,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 								INISection::SectionValue val;
 								val.type = VALUE_LITERAL;
 								val.valueLiteral = _strdup(parser.currentToken.value.c_str());
-								section.data[key.c_str()] = val;
+								section.data[_strdup(key.c_str())] = val;
 								if (!parserAdvance()) {
 									return {};
 								}
@@ -288,7 +287,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 								INISection::SectionValue val;
 								val.type = STRING_LITERAL;
 								val.stringValue = _strdup(parser.currentToken.value.c_str());
-								section.data[key.c_str()] = val;
+								section.data[_strdup(key.c_str())] = val;
 								if (!parserAdvance()) {
 									return {};
 								}
@@ -299,7 +298,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 								INISection::SectionValue val;
 								val.type = FLOAT_LITERAL;
 								val.floatValue = std::stof(parser.currentToken.value);
-								section.data[key.c_str()] = val;
+								section.data[_strdup(key.c_str())] = val;
 								if (!parserAdvance()) {
 									return {};
 								}
@@ -310,7 +309,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 								INISection::SectionValue val;
 								val.type = INTEGER_LITERAL;
 								val.intValue = std::stoi(parser.currentToken.value);
-								section.data[key.c_str()] = val;
+								section.data[_strdup(key.c_str())] = val;
 								if (!parserAdvance()) {
 									return {};
 								}
@@ -321,7 +320,7 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 								INISection::SectionValue val;
 								val.type = BOOL_LITERAL;
 								val.boolValue = (parser.currentToken.value == "true" || parser.currentToken.value == "false");
-								section.data[key.c_str()] = val;
+								section.data[_strdup(key.c_str())] = val;
 								if (!parserAdvance()) {
 									return {};
 								}
@@ -332,13 +331,16 @@ std::vector<INISection> INIFileParser::parse(const std::filesystem::path& path) 
 						LOG_ERROR("Expected a name for the key after the bracket ']'.");
 						return {};
 					}
-				};
+
+				}
 
 				sections.push_back(section);
+
 			} else {
 				LOG_ERROR("Expected a name for the section after the bracket '['.");
 				return {};
 			}
+
 		} else {
 			LOG_ERROR("Expected top level construct in configuration file to be a section.");
 			return {};

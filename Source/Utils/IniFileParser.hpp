@@ -1,9 +1,7 @@
 #pragma once
+#include "pch.h"
 
 #include <unordered_map>
-#include <vector>
-#include <filesystem>
-#include <any>
 
 // this only parses sections and basic key values in the sections.
 // does handle semicolon starting single line comments
