@@ -1,7 +1,9 @@
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/submodules/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 
 cmake_minimum_required(VERSION 3.20)
-project(cprg-game VERSION 1.0.0 LANGUAGES CXX)
+project(crpg-game VERSION 1.0.0 LANGUAGES CXX)
+
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,38 +32,53 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(Taskflow CONFIG REQUIRED)
 find_package(meshoptimizer CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(d3d12-memory-allocator CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME} main.cpp 
+    "Source/pch.h"
+    "Source/Game/Game.cpp"
     "Source/Engine/Engine.cpp"
     "Source/Engine/Subsystems/Logger.hpp"
     "Source/Engine/Subsystems/Window.cpp" 
-    "Source/Engine/Subsystems/Graphics/DX12Device.cpp"
     "Source/Utils/Utils.cpp" 
     "Source/Utils/IniFileParser.cpp" 
-    "Source/Game/Game.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/Device.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/SwapChain.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/Fence.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/CommandQueue.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/Allocator.cpp" 
+    "Source/Engine/Subsystems/Graphics/DX12/GraphicsContext.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/Shader.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/DescriptorHeap.cpp" 
+    "Source/Engine/Subsystems/Graphics/DX12/UploadHeap.cpp" 
+    "Source/Engine/Subsystems/Graphics/DX12/Mesh.cpp"
+    "Source/Engine/Subsystems/Graphics/DX12/ResourceManager.cpp"
+    "Source/Engine/Camera/Camera.cpp"
 )
 
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /utf-8 /MP)
+    target_link_options(${PROJECT_NAME} PRIVATE /TIME)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 endif()
 
-target_include_directories(cprg-game PRIVATE "${CMAKE_SOURCE_DIR}/Source")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/Source")
 
-target_link_libraries(cprg-game PRIVATE Microsoft::DirectXShaderCompiler)
-target_link_libraries(cprg-game PRIVATE Microsoft::DirectX-Headers)
-target_link_libraries(cprg-game PRIVATE Microsoft::DirectX-Headers Microsoft::DirectX-Guids Microsoft::DirectX12-Agility)
-target_link_libraries(cprg-game PRIVATE Microsoft::DirectXMath)
-target_link_libraries(cprg-game PRIVATE Microsoft::DirectXTK)
-target_link_libraries(cprg-game PRIVATE Microsoft::DirectXTK12)
-target_link_libraries(cprg-game PRIVATE spdlog::spdlog)
-target_link_libraries(cprg-game PRIVATE Taskflow::Taskflow)
-target_link_libraries(cprg-game PRIVATE meshoptimizer::meshoptimizer)
-target_link_libraries(cprg-game PRIVATE assimp::assimp)
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXShaderCompiler)
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectX-Headers)
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectX-Headers Microsoft::DirectX-Guids Microsoft::DirectX12-Agility)
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXMath)
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXTK)
+target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXTK12)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE Taskflow::Taskflow)
+target_link_libraries(${PROJECT_NAME} PRIVATE meshoptimizer::meshoptimizer)
+target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
+target_link_libraries(${PROJECT_NAME} PRIVATE unofficial::D3D12MemoryAllocator)
 
 if(WIN32)
-    target_link_libraries(cprg-game PRIVATE
+    target_link_libraries(${PROJECT_NAME} PRIVATE
         d3d12.lib
         dxgi.lib
         # dxcompiler.lib
@@ -83,4 +100,25 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/config.ini
         ${CMAKE_SOURCE_DIR}/bin/$<CONFIG>/config.ini
+    COMMAND ${CMAKE_COMMAND} -E echo "Copied engine configuration file to bin directory"
+)
+
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/Source/Assets
+        ${CMAKE_SOURCE_DIR}/bin/$<CONFIG>/Source/Assets
+    COMMAND ${CMAKE_COMMAND} -E echo "Copied Assets to the bin directory"
+)
+
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/External/dxil.dll
+        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/dxil.dll
+        COMMAND ${CMAKE_COMMAND} -E echo "Copied dxil.dll"
+)
+
+target_precompile_headers(${PROJECT_NAME} 
+    PRIVATE Source/pch.h
 )

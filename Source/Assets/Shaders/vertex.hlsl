@@ -1,29 +1,36 @@
-struct VSInput
-{
-    uint vertexID : SV_VertexID;
-};
-
 struct VSOutput
 {
     float4 position : SV_POSITION;
     float4 color : COLOR;
 };
 
-struct Vertex
+struct MeshVertex
 {
     float3 position;
     float4 color;
 };
 
-StructuredBuffer<Vertex> vertices : register(t0, space0);
+cbuffer PushConstants : register(b0)
+{
+    uint vertexBufferIndex;
+    uint cameraBufferIndex;
+}
 
-VSOutput VSMain(VSInput input)
+struct CameraData
+{
+    float4x4 viewProjection;
+}; 
+
+VSOutput VSMain(uint vertexID : SV_VertexID)
 {
     VSOutput output;
     
-    Vertex vertex = vertices[input.vertexID]; // vertex pulling
+    StructuredBuffer<MeshVertex> vertices = ResourceDescriptorHeap[vertexBufferIndex];
+    ConstantBuffer<CameraData> camera = ResourceDescriptorHeap[cameraBufferIndex];
     
-    output.position = float4(vertex.position, 1.0f);
+    MeshVertex vertex = vertices[vertexID];
+    
+    output.position = mul(float4(vertex.position, 1.0f), camera.viewProjection);
     output.color = vertex.color;
     
     return output;
