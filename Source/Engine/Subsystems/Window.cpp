@@ -1,11 +1,11 @@
+#include "pch.h"
+
 #include <cassert>
 
 #include "Window.hpp"
 #include "Engine/Engine.hpp"
-#include "Logger.hpp"
 
-
-static LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+static LRESULT CALLBACK wndProc(HWND hwnd, uint32_t msg, WPARAM wParam, LPARAM lParam) {
 	Engine* engine = reinterpret_cast<Engine*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
 	// when the window is initially created we set passed in user parameter from when we created the window
@@ -39,7 +39,7 @@ void Window::initialize(const WindowDescription& inDesc, void* engine) {
 
 	if (!RegisterClassEx(&windowClass)) {
 		LOG_FATAL("Unable to register window class in the initialize function for the window");
-		std::exit(-1);
+		std::exit(EXIT_FAILURE);
 	}
 
 	assert(&windowClass);
@@ -54,7 +54,7 @@ void Window::initialize(const WindowDescription& inDesc, void* engine) {
 	int32_t middleY = (monitorHeight - desc.height) / 2;
 
 	windowHandle = CreateWindowEx(
-		0, // consider WS_EX_NOREDIRECTIONBITMAP?
+		0, // maybe WS_EX_NOREDIRECTIONBITMAP?
 		windowClass.lpszClassName,
 		desc.windowName,
 		WS_OVERLAPPEDWINDOW,
@@ -70,7 +70,7 @@ void Window::initialize(const WindowDescription& inDesc, void* engine) {
 
 	if (windowHandle == nullptr) {
 		LOG_FATAL("Unable to create window");
-		std::exit(-1);
+		std::exit(EXIT_FAILURE);
 	}
 
 	ShowWindow(windowHandle, SW_SHOW);
